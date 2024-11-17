@@ -1609,31 +1609,104 @@ path('user/\<str:username\>')   username会作为参数传入
 
 
 
-# 达达商城最终数据表梳理
 
-- 用户模块 - user应用
 
-  **3张**：用户表、地址表、微博表
 
-- 登录模块 - dtoken应用
 
-- 商品模块 - goods应用
+# 快速搞定环境
 
-  **9张**：SKU表、SPU表、类别表、销售属性表、销售属性值表、规格属性表、规格属性值表、详情图片表、品牌表
+## 一、模块安装及文件拷贝
 
-- 购物车模块 - carts应用
+- 安装django-redis组件
 
-  **0张**：数据完全存入Redis数据库
+  ```python
+  sudo pip3 install django-redis
+  ```
 
-- 订单模块 - orders应用
+- 拷贝前端文件
 
-  **2张**：订单表、订单商品表
-
-  <font color=red>**共计14张表**</font>
-
+  ```python
+  1.将前端文件夹client拷贝到用户主目录下 /home/tarena/
   
+  2.拷贝到nginx目录下：/var/www/html
+    sudo mkdir /var/www/html/dadashop/
+        sudo cp -fr client/.  /var/www/html/dadashop/
+  ```
 
+## 二、配置并重启Nginx
 
+- sudo vim /etc/nginx/conf.d/dadashop.conf
+
+  ```nginx
+  server {
+          
+          listen 7000 default_server;
+          listen [::]:7000 default_server;
+          server_name __;
+  
+          root /var/www/html;
+          # Add index.php to the list if you are using PHP
+          index index.html index.htm index.nginx-debian.html;
+  
+          location / {
+                  # First attempt to serve request as file, then
+                  # as directory, then fall back to displaying a 404.
+                  try_files $uri $uri/ =404;
+          }
+  }
+  ```
+
+- 重新启动nginx
+
+  ```python
+  sudo /etc/init.d/nginx restart
+  ```
+
+## 三、配置数据库
+
+- 建库
+
+  ```mysql
+  create database dashopt default charset utf8;
+  ```
+
+- 删除项目迁移文件
+
+  - user应用下的迁移文件
+  - goods应用下的迁移文件
+
+- 同步数据库
+
+  ```linux
+  python3 manage.py makemigrations
+  python3 manage.py migrate
+  ```
+
+## 四、测试
+
+### 1、启动项目
+
+```python
+python3 manage.py runserver
+```
+
+### 2、启动celery
+
+```python
+celery -A dashopt worker --loglevel info
+```
+
+### 3、访问主页
+
+```python
+http://127.0.0.1:7000/dadashop/templates/index.html  
+```
+
+### 4、注册用户
+
+```python
+http://127.0.0.1:7000/dadashop/templates/register_sms.html
+```
 
 
 
