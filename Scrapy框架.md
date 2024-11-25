@@ -52,7 +52,7 @@ scrapy支持Python2.7和python3.4以上版本。
 
 ## 运行流程
 
-![scrapy框架流程](images/scrapy框架流程.png)
+![scrapy框架流程](./images/Snipaste_2024-11-25_11-53-59.png)
 
 
 
@@ -85,7 +85,7 @@ Scrapy中的数据流由执行引擎控制,流程如下：
 
 ### 组件介绍
 
-![](./images/Snipaste_2024-11-24_22-56-24.png)
+![](./images/Snipaste_2024-11-25_11-48-26.png)
 
 * Scrapy Engine(引擎)
   引擎负责控制系统所有组件之间的数据流，并在发生某些操作时触发事件。
@@ -183,7 +183,7 @@ scrapy startproject   info
 
 # Scrapy框架基础用法
 
-![scrapy框架流程](images/scrapy框架流程.png)
+![scrapy框架流程](./images/Snipaste_2024-11-25_12-00-09.png)
 
 
 
