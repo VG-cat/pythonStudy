@@ -182,6 +182,25 @@ scrapy startproject   info
 
 * 5.增加管道 存储到excel表格
 
+  ```
+  from  . import items
+  
+  class Scrapy01Pipeline:
+      def open_spider(self, spider):
+          self.f=  open('scrapy01.html', 'w',encoding='utf-8')
+  
+  
+      def close_spider(self, spider):
+          self.f.close()
+  
+      def process_item(self, item, spider):
+          self.f.write(item['content']+'\n')
+  
+          if isinstance(item,items.Scrapy01Item):
+              pass
+          return item
+  ```
+  
   
 
 
@@ -192,7 +211,7 @@ scrapy startproject   info
 
 
 
-### 重写请求方法
+## 重写请求方法
 
 * 作用
 
@@ -201,9 +220,65 @@ scrapy startproject   info
 
 * 重写  start_requests
 
+  ```
+  import scrapy
+  from scrapy import cmdline
+  
+  from scrapy01.items import Scrapy01Item
+  
+  class BaiduSpider(scrapy.Spider):
+      name = 'baidu'
+      allowed_domains = ['baidu.com']
+      start_urls = ['http://baidu.com/']
+  
+      # def start_requests(self):
+      #     for i in range(1,6):
+      #         url = 'http://baidu.com/{}'.format(i)
+      #         yield scrapy.Request(url=url, callback=self.parse)
+  
+      # def parse(self, response):
+      #     循环处理页面的其他写法
+      #     print(response.meta['page'])
+      #     totalpage = response.json().get('totalpage')
+      #     global page
+      #     page += 1
+      #     if page < totalpage:
+      #         url = 'http://baidu.com/'
+      #         data = {'dsf':'gfdsg'}
+      #         yield scrapy.FormRequest(url=url,formdata=data,meta={'page':page},dont_filter=True)
+  
+      def parse(self, response):
+          print(response.text)
+  
+          # 把数据保存到管道
+          item = Scrapy01Item()
+          item['content'] = response.text
+  
+  
+          return item
+  
+  if __name__ == '__main__':
+  
+      cmdline.execute('scrapy crawl baidu'.split())
+  
+  
+  ```
+  
+  
+  
   
 
-### 下载中间件
+## 下载中间件
+
+默认的中间件：
+
+![](./images/Snipaste_2024-11-26_13-31-38.png)
+
+键为路径，值为优先级，越小越优先，None为禁止
+
+请求和响应触发优先级相同，不是洋葱模型
+
+自定义中间件：
 
 * 方法含义介绍
 
@@ -215,6 +290,7 @@ scrapy startproject   info
   
       @classmethod
       def from_crawler(cls, crawler):
+          # 初始化
           # This method is used by Scrapy to create your spiders.
           s = cls()
           crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
@@ -228,7 +304,7 @@ scrapy startproject   info
           # Must either:  以下必选其一
           # - return None: continue processing this request #返回None   request 被继续交个下一个中间件处理
           # - or return a Response object #返回response对象   不会交给下一个precess_request  而是交给下载器
-          # - or return a Request object #返回一个request对象   直接交给引擎处理
+          # - or return a Request object #返回一个request对象   直接交给引擎处理，重新进行调度
           # - or raise IgnoreRequest: process_exception() methods of   #抛出异常  process_exception处理
           #   installed downloader middleware will be called
           return None
@@ -258,7 +334,6 @@ scrapy startproject   info
           spider.logger.info('Spider opened: %s' % spider.name)
   ```
 
-  
 
 
 * UA池
@@ -368,9 +443,33 @@ scrapy startproject   info
 
   
 
+- 动态加载数据变为静态数据
+
+增加自动化工具的中间件
+
+````
+from selenium import webdriver
+from scrapy.http import HtmlResponse
+
+class SeleniumMiddleware():
+	def__intit__(self):
+        self.timeout = random.randint(1,3)
+        self.browser = webdriver.PhantomJS() #无头浏览器
+        self.browser.set_window_size(1400,700)
+        self.browser.set_page_load_timeout(self.timeout)
+        
+    def process_request(self,request,spider):
+    	self.brower.get(request.url)
+		body = self.browser.page_source
+		return HtmlResponse(url=request.url,body=body,request=request,status = 200,encoding='utf-8')
+		
+	def __del__(self):
+		self.browser.close()
+````
 
 
-### Request 对象
+
+## Request 对象
 
 Scrapy.http.Request类是scrapy框架中request的基类。它的参数如下：
 
@@ -385,7 +484,7 @@ Scrapy.http.Request类是scrapy框架中request的基类。它的参数如下：
 - **dont_filter**（boolean） -默认 False,  过滤请求。True， 表示调度程序不应过滤此请求。
 - **errback**（callable） - 在处理请求时引发任何异常时将调用的函数
 
-### Response对象
+## Response对象
 
 * **url**（字符串） - 此响应的URL
 
@@ -504,7 +603,128 @@ Scrapy.http.Request类是scrapy框架中request的基类。它的参数如下：
 
 
 
+## 数据解析
+
+mysql,mongo
+
+```
+from scrapy import Selector
+
+body = '<div><p>ddf<p></div>'
+
+selector = Selector(text=body)
+
+# extract()  匹配全部
+title = selector.xpath('//h1[@class="title"]/text()').extract_first()
+href = selector.xpath('//a/@href').extract_first()
+
+
+src = selector.css('img::attr(src)').extract_first()
+```
+
+## 处理加密
+
+重写请求方法
+
+```
+import scrapy
+import execjs
+
+class BaiduSpider01(scrapy.Spider):
+    name = 'baidu'
+    allowed_domains = ['baidu.com']
+    start_urls = ['http://baidu.com/']
+
+    def start_requests(self):
+        header = {}
+        for i in range(1,6):
+            url = 'http://baidu.com/{}'.format(i)
+            yield scrapy.Request(url=url,headers=header, callback=self.parse)
+
+    def parse(self, response):
+        res = self.parse_data(response.text)
+
+    def parse_data(self,text):
+        js_code = '''
+            var i = 0
+            function h(t){}
+        '''
+        execjs.compile(js_code).call('h',text)
+```
+
+## 配置发送邮件功能
+
+当发生错误时，邮件提醒
+
+```
+import pydispatch.dispatcher
+import scrapy
+from scrapy.mail import MailSender
+from pydispatch import dispatcher
+from scrapy import signals,cmdline
+
+class TestSpider01(scrapy.Spider):
+    name = 'test'
+    allowed_domains = ['baidu.com']
+    start_urls = ['http://baidu.com/']
+
+    mailers = MailSender(smtphost='smtp.qq.com',mailfrom='1234@qq.com',smtpuser='eee',smtppass='cksdfsuueccbs',smtpport=25)
+
+    def __init__(self, *args, **kwargs):
+        super(TestSpider01, self).__init__(*args, **kwargs)
+        pydispatch.dispatcher.connect(self.spider_closed,signals.spider_closed)
+
+    def spider_closed(self,spider,reason):
+        # 信号量触发该方法
+        stats_info = self.crawler.stats._stats  # 爬虫结束时，控制台信息
+        subject = '%s 关闭'.format(spider.name)
+        body ="%s".format(reason)
+
+        self.mailers.send(to='efwwewe@163.com',subject=subject,body=body)
+
+
+    def parse(self, response):
+        res = self.parse_data(response.text)
+```
+
+# Scrapy-redis
+
+提供了分布式队列，调度器，去重等功能
+
+多台电脑使用同一个爬虫
+
+....
+
+# 爬虫部署
+
+## 脚本部署
+
+单个脚本文件，启动定时任务执行脚本
+
+linux自带的corntab,命令构成为i时间+动作
+
+corntab -e
+
+```
+3,15 * * * * python /usr/local/crow.py spider >> /usr/local/log.log
+```
+
+sys.argv 可以接收路径后的参数
+
+```
+----->python sp.py ccc
+
+orders = sys.argv
+orders = ['sp.py','ccc']
+```
 
 
 
+## scrapy部署
+
+scrapyd
+
+gerapy
+
+## web部署
 
