@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+	<title></title>
+	<!-- 1.导入vue -->
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+<!-- 2.定义一个 标签 需要给一个标签添加 id -->
+<div id="app">
+	<span>{{message}}</span>
+	<hr>
+	<a href="#" v-if="isLogin">欢迎你归来</a>
+	<hr>
+	<a href="#" v-if="level === 1">青铜</a>
+	<a href="#" v-else-if="level === 2">白银</a>
+	<a href="#" v-else>王者</a>
+
+
+	<hr>
+	<span v-if="seen">v-if</span> <br>
+
+	<span v-show="seen">v-show</span>
+
+</div>
+</body>
+<!-- 3.创建vue实例 -->
+<script type="text/javascript">
+	var vm = new Vue({
+		el:'#app',
+		data:{
+			message:'hello',
+			isLogin:false,
+			level:2,
+			seen:true,
+		}
+	})
+</script>
+</html>

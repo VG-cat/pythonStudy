@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+	<title></title>
+	<!-- 1.导入vue -->
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+<!-- 2.定义一个 标签 需要给一个标签添加 id -->
+<div id="app">
+	<span>{{message}}</span>
+
+	<button v-on:click="login">登陆</button> <br>
+	<a href="javascript:;" @click="register">注册</a>
+
+	<hr>
+	<button @click="add(counter)">点击+1</button>
+</div>
+</body>
+<!-- 3.创建vue实例 -->
+<script type="text/javascript">
+	var vm = new Vue({
+		// 接管标签
+		el:'#app',
+		// 绑定数据
+		data:{
+			message:'hello',
+			counter:1,
+			total:0,
+		},
+	// 方法
+		methods:{
+				login:function(){
+						alert('我被点击了')
+				},
+				register:function(){
+					alert('zhuce')
+				},
+				add:function(counter){
+		// this 表示当前的 vue 我们通过this.total 来获取data中的变量
+						this.total+=counter;
+						alert(this.total)
+				}
+		}
+	})
+</script>
+</html>

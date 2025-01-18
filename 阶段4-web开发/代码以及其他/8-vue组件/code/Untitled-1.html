@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Hello Ming</title>
+    <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+    <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <div id='app'>
+          <zujian_all></zujian_all>
+          
+    </div>
+
+    <script>
+
+        var zujian_b={
+            template:'<div>zujian_b</div>',
+        }
+
+        // 局部组件
+        var zujian_a={
+            template:'<div>局部组件定义 <button @click="upload">上传</button>  {{pro}}   <zujian_b></zujian_b> </div>',
+            data:function(){
+                return {age:18}
+            },
+            components:{
+                zujian_b
+            },
+
+            // 定义接受父组件的变量值
+            props:['pro'],
+            // 定义传值父组件方法
+            methods:{
+                upload:function(){
+                    this.$emit('listen',this.age)
+                }
+            }
+        }
+       
+        //全局组件定义
+        Vue.component(
+            // 组件名定义
+            'zujian_all',
+            {
+                template:'<div>全局组件定义  <zujian_a v-bind:pro="name" v-on:listen="isShow"></zujian_a>   </div>',
+                // 注册局部组件
+                components:{
+                    zujian_a,
+
+                },
+                //组件定义绑定数据
+                data:function(){
+                    return {name:'itcast'}
+                },
+                methods:{
+                    add:function(){
+                        alert('add')
+                    },
+
+                    isShow:function(data){
+                        alert(data)
+                    }
+                }
+
+            }
+        )
+    new Vue({
+        el:'#app',
+        data:{
+            name:'python'
+        },
+        methods:{
+            add:function(){
+                alert('add')
+            }
+        }
+    })
+    
+    
+    </script>
+</body>
+</html>

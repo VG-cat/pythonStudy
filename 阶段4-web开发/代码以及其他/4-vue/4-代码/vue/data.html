@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title></title>
+	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
+<body>
+
+<div id="app">
+		<a href="#">{{message}}</a>
+		<span>{{hello}}</span> 
+		<hr>
+		<!-- <span>{{world}}</span> -->
+		<hr>
+		<a v-bind:href="url">戳我有惊喜</a>
+		<br>
+		<span :title='showmessage'>鼠标放在这里</span>
+</div>
+
+</body>
+<script type="text/javascript">
+	
+	var vm = new Vue({
+		el:'#app', 
+		data:{
+			message:'领取优惠劵',
+			hello:'hi en heng',
+			url:'http://www.itheima.com',
+			showmessage: '当前的时间是' + new Date().toLocaleString()
+		}
+	})
+
+</script>
+</html>

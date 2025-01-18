@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+	<title></title>
+	<!-- 1.导入vue -->
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+{#    导入 axios#}
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<!-- 2.定义一个 标签 需要给一个标签添加 id -->
+<div id="app">
+{#    vue的大胡子语法 和 django/flask的模板语法 冲突了#}
+	<span>[[message]]</span>
+    <button @click="login">登陆</button>
+
+    <hr>
+    [[username]]
+
+    <hr>
+    <button @click="login2">post</button>
+</div>
+
+
+
+</body>
+<!-- 3.创建vue实例 -->
+<script type="text/javascript">
+	var vm = new Vue({
+		el:'#app',
+        delimiters:['[[',']]'],
+		data:{
+			message:'hello',
+            username:''
+		},
+        methods:{
+		    login:function(){
+		        alert('zou le ma')
+{#		        这里发送axios#}
+                var url = 'http://127.0.0.1:8000/rece/?username=itcast&password=1234'
+{#                then catch 用 => 箭头函数 this #}
+                axios.get(url).then((response)=>{
+{#                    response(相应) --> response.data(返回数据) --> #}
+                    console.log(response.data.info.username)
+                    this.username=response.data.info.username
+                }).catch( (error)=>{
+                    console.log(error)
+                } )
+            },
+
+            login2:function(){
+
+{#		        axios.post().then().catch()   #}
+{#                then 成功的回调 catch 失败的回调#}
+                let url = 'http://127.0.0.1:8000/rece/';
+		        axios.post(url,{
+		            'username':'如花',
+                    'password':'123456'
+                }).then((response)=>{
+		            console.log(response.data.info.username)
+                    this.username=response.data.info.username
+                }).catch((error)=>{
+
+                })
+            }
+        }
+	})
+</script>
+</html>
